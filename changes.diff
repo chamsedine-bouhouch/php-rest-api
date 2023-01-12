@@ -1,0 +1,560 @@
+--- src\Controller\Home.php
++++ PHP_CodeSniffer
+@@ -1,13 +1,13 @@
+-<?php
+-
+-namespace Bouhouch\PhpRestApi\Controller;
+-
+-class Home
+-{
+-    public function indexAction()
+-    { 
+-        // you could add the twig package 'composer require "twig/twig:^2.0"' 
+-        // and use it as "echo $twig->render('index', ['name' => 'Fabien']);"
+-        echo 'Hello from Controller';
+-    }
+-}
+\ No newline at end of file
++<?php
++
++namespace Bouhouch\PhpRestApi\Controller;
++
++class Home
++{
++    public function indexAction()
++    { 
++        // you could add the twig package 'composer require "twig/twig:^2.0"' 
++        // and use it as "echo $twig->render('index', ['name' => 'Fabien']);"
++        echo 'Hello from Controller';
++    }
++}
+--- src\lib\App.php
++++ PHP_CodeSniffer
+@@ -1,11 +1,11 @@
+-<?php
+-
+-namespace Bouhouch\PhpRestApi\Lib;
+-
+-class App
+-{
+-    public static function run()
+-    {
+-        Logger::enableSystemLogs();
+-    }
+-}
+\ No newline at end of file
++<?php
++
++namespace Bouhouch\PhpRestApi\Lib;
++
++class App
++{
++    public static function run()
++    {
++        Logger::enableSystemLogs();
++    }
++}
+--- src\lib\Config.php
++++ PHP_CodeSniffer
+@@ -1,15 +1,15 @@
+-<?php namespace Bouhouch\PhpRestApi\Lib;
+-
+-class Config
+-{
+-    private static $config;
+-
+-    public static function get($key, $default = null)
+-    {
+-        if (is_null(self::$config)) {
+-            self::$config = require_once(__DIR__.'/../../config.php');
+-        }
+-
+-        return !empty(self::$config[$key])?self::$config[$key]:$default;
+-    }
+-}
+\ No newline at end of file
++<?php namespace Bouhouch\PhpRestApi\Lib;
++
++class Config
++{
++    private static $config;
++
++    public static function get($key, $default = null)
++    {
++        if (is_null(self::$config)) {
++            self::$config = include_once __DIR__.'/../../config.php';
++        }
++
++        return !empty(self::$config[$key])?self::$config[$key]:$default;
++    }
++}
+--- src\lib\Logger.php
++++ PHP_CodeSniffer
+@@ -1,56 +1,56 @@
+-<?php 
+-
+-namespace Bouhouch\PhpRestApi\Lib;
+-
+-use Monolog\ErrorHandler;
+-use Monolog\Handler\StreamHandler;
+-
+-class Logger extends \Monolog\Logger
+-{
+-    private static $loggers = [];
+-
+-    public function __construct($key = "app", $config = null)
+-    {
+-        parent::__construct($key);
+-
+-        if (empty($config)) {
+-            $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
+-            $config = [
+-                'logFile' => "{$LOG_PATH}/{$key}.log",
+-                'logLevel' => \Monolog\Logger::DEBUG
+-            ];
+-        }
+-
+-        $this->pushHandler(new StreamHandler($config['logFile'], $config['logLevel']));
+-    }
+-
+-    public static function getInstance($key = "app", $config = null)
+-    {
+-        if (empty(self::$loggers[$key])) {
+-            self::$loggers[$key] = new Logger($key, $config);
+-        }
+-
+-        return self::$loggers[$key];
+-    }
+-
+-    public static function enableSystemLogs()
+-    {
+-
+-        $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
+-
+-        // Error Log
+-        self::$loggers['error'] = new Logger('errors');
+-        self::$loggers['error']->pushHandler(new StreamHandler("{$LOG_PATH}/errors.log"));
+-        ErrorHandler::register(self::$loggers['error']);
+-
+-        // Request Log
+-        $data = [
+-            $_SERVER,
+-            $_REQUEST,
+-            trim(file_get_contents("php://input"))
+-        ];
+-        self::$loggers['request'] = new Logger('request');
+-        self::$loggers['request']->pushHandler(new StreamHandler("{$LOG_PATH}/request.log"));
+-        self::$loggers['request']->info("REQUEST", $data);
+-    }
+-}
+\ No newline at end of file
++<?php 
++
++namespace Bouhouch\PhpRestApi\Lib;
++
++use Monolog\ErrorHandler;
++use Monolog\Handler\StreamHandler;
++
++class Logger extends \Monolog\Logger
++{
++    private static $loggers = [];
++
++    public function __construct($key = "app", $config = null)
++    {
++        parent::__construct($key);
++
++        if (empty($config)) {
++            $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
++            $config = [
++                'logFile' => "{$LOG_PATH}/{$key}.log",
++                'logLevel' => \Monolog\Logger::DEBUG
++            ];
++        }
++
++        $this->pushHandler(new StreamHandler($config['logFile'], $config['logLevel']));
++    }
++
++    public static function getInstance($key = "app", $config = null)
++    {
++        if (empty(self::$loggers[$key])) {
++            self::$loggers[$key] = new Logger($key, $config);
++        }
++
++        return self::$loggers[$key];
++    }
++
++    public static function enableSystemLogs()
++    {
++
++        $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
++
++        // Error Log
++        self::$loggers['error'] = new Logger('errors');
++        self::$loggers['error']->pushHandler(new StreamHandler("{$LOG_PATH}/errors.log"));
++        ErrorHandler::register(self::$loggers['error']);
++
++        // Request Log
++        $data = [
++            $_SERVER,
++            $_REQUEST,
++            trim(file_get_contents("php://input"))
++        ];
++        self::$loggers['request'] = new Logger('request');
++        self::$loggers['request']->pushHandler(new StreamHandler("{$LOG_PATH}/request.log"));
++        self::$loggers['request']->info("REQUEST", $data);
++    }
++}
+--- src\lib\Request.php
++++ PHP_CodeSniffer
+@@ -1,48 +1,48 @@
+-<?php 
+-
+-namespace Bouhouch\PhpRestApi\Lib;
+-
+-class Request
+-{
+-    public $params;
+-    public $reqMethod;
+-    public $contentType;
+-
+-    public function __construct($params = [])
+-    {
+-        $this->params = $params;
+-        $this->reqMethod = trim($_SERVER['REQUEST_METHOD']);
+-        $this->contentType = !empty($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+-    }
+-
+-    public function getBody()
+-    {
+-        if ($this->reqMethod !== 'POST') {
+-            return '';
+-        }
+-
+-        $body = [];
+-        foreach ($_POST as $key => $value) {
+-            $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+-        }
+-
+-        return $body;
+-    }
+-
+-    public function getJSON()
+-    {
+-        if ($this->reqMethod !== 'POST') {
+-            return [];
+-        }
+-
+-        if (strcasecmp($this->contentType, 'application/json') !== 0) {
+-            return [];
+-        }
+-
+-        // Receive the RAW post data.
+-        $content = trim(file_get_contents("php://input"));
+-        $decoded = json_decode($content);
+-
+-        return $decoded;
+-    }
+-}
+\ No newline at end of file
++<?php 
++
++namespace Bouhouch\PhpRestApi\Lib;
++
++class Request
++{
++    public $params;
++    public $reqMethod;
++    public $contentType;
++
++    public function __construct($params = [])
++    {
++        $this->params = $params;
++        $this->reqMethod = trim($_SERVER['REQUEST_METHOD']);
++        $this->contentType = !empty($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
++    }
++
++    public function getBody()
++    {
++        if ($this->reqMethod !== 'POST') {
++            return '';
++        }
++
++        $body = [];
++        foreach ($_POST as $key => $value) {
++            $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
++        }
++
++        return $body;
++    }
++
++    public function getJSON()
++    {
++        if ($this->reqMethod !== 'POST') {
++            return [];
++        }
++
++        if (strcasecmp($this->contentType, 'application/json') !== 0) {
++            return [];
++        }
++
++        // Receive the RAW post data.
++        $content = trim(file_get_contents("php://input"));
++        $decoded = json_decode($content);
++
++        return $decoded;
++    }
++}
+--- src\lib\Response.php
++++ PHP_CodeSniffer
+@@ -1,21 +1,21 @@
+-<?php
+-
+-namespace Bouhouch\PhpRestApi\Lib;
+-
+-class Response
+-{
+-    private $status = 200;
+-
+-    public function status(int $code)
+-    {
+-        $this->status = $code;
+-        return $this;
+-    }
+-    
+-    public function toJSON($data = [])
+-    {
+-        http_response_code($this->status);
+-        header('Content-Type: application/json');
+-        echo json_encode($data);
+-    }
+-}
+\ No newline at end of file
++<?php
++
++namespace Bouhouch\PhpRestApi\Lib;
++
++class Response
++{
++    private $status = 200;
++
++    public function status(int $code)
++    {
++        $this->status = $code;
++        return $this;
++    }
++    
++    public function toJSON($data = [])
++    {
++        http_response_code($this->status);
++        header('Content-Type: application/json');
++        echo json_encode($data);
++    }
++}
+--- src\lib\Router.php
++++ PHP_CodeSniffer
+@@ -1,42 +1,44 @@
+-<?php 
+-
+-namespace Bouhouch\PhpRestApi\Lib;
+-
+-class Router
+-{
+-    public static function get($route, $callback)
+-    {
+-        if (strcasecmp($_SERVER['REQUEST_METHOD'], 'GET') !== 0) {
+-            return;
+-        }
+-
+-        self::on($route, $callback);
+-    }
+-
+-    public static function post($route, $callback)
+-    {
+-        if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
+-            return;
+-        }
+-
+-        self::on($route, $callback);
+-    }
+-
+-    public static function on($regex, $cb)
+-    {
+-        $params = $_SERVER['REQUEST_URI'];
+-        $params = (stripos($params, "/") !== 0) ? "/" . $params : $params;
+-        $regex = str_replace('/', '\/', $regex);
+-        $is_match = preg_match('/^' . ($regex) . '$/', $params, $matches, PREG_OFFSET_CAPTURE);
+-
+-        if ($is_match) {
+-            // first value is normally the route, lets remove it
+-            array_shift($matches);
+-            // Get the matches as parameters
+-            $params = array_map(function ($param) {
+-                return $param[0];
+-            }, $matches);
+-            $cb(new Request($params), new Response());
+-        }
+-    }
+-}
+\ No newline at end of file
++<?php 
++
++namespace Bouhouch\PhpRestApi\Lib;
++
++class Router
++{
++    public static function get($route, $callback)
++    {
++        if (strcasecmp($_SERVER['REQUEST_METHOD'], 'GET') !== 0) {
++            return;
++        }
++
++        self::on($route, $callback);
++    }
++
++    public static function post($route, $callback)
++    {
++        if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
++            return;
++        }
++
++        self::on($route, $callback);
++    }
++
++    public static function on($regex, $cb)
++    {
++        $params = $_SERVER['REQUEST_URI'];
++        $params = (stripos($params, "/") !== 0) ? "/" . $params : $params;
++        $regex = str_replace('/', '\/', $regex);
++        $is_match = preg_match('/^' . ($regex) . '$/', $params, $matches, PREG_OFFSET_CAPTURE);
++
++        if ($is_match) {
++            // first value is normally the route, lets remove it
++            array_shift($matches);
++            // Get the matches as parameters
++            $params = array_map(
++                function ($param) {
++                    return $param[0];
++                }, $matches
++            );
++            $cb(new Request($params), new Response());
++        }
++    }
++}
+--- src\Model\Post.php
++++ PHP_CodeSniffer
+@@ -1,47 +1,47 @@
+-<?php
+-
+-namespace Bouhouch\PhpRestApi\Model;
+-
+-use Bouhouch\PhpRestApi\Lib\Config;
+-
+-class Post
+-{
+-    private static $DATA = [];
+-
+-    public static function all()
+-    {
+-        return self::$DATA;
+-    }
+-
+-    public static function add($post)
+-    {
+-        // var_dump($post);
+-        // var_dump($_POST);
+-        $post->id = count(self::$DATA) + 1;
+-        self::$DATA[] = $post;
+-        self::save();
+-        return $post;
+-    }
+-
+-    public static function findById(int $id)
+-    {
+-        foreach (self::$DATA as $post) {
+-            if ($post->id === $id) {
+-                return $post;
+-            }
+-        }
+-        return [];
+-    }
+-
+-    public static function load()
+-    {
+-        $DB_PATH = Config::get('DB_PATH', __DIR__ . '/../../db.json');
+-        self::$DATA = json_decode(file_get_contents($DB_PATH));
+-    }
+-
+-    public static function save()
+-    {
+-        $DB_PATH = Config::get('DB_PATH', __DIR__ . '/../../db.json');
+-        file_put_contents($DB_PATH, json_encode(self::$DATA, JSON_PRETTY_PRINT));
+-    }
+-}
+\ No newline at end of file
++<?php
++
++namespace Bouhouch\PhpRestApi\Model;
++
++use Bouhouch\PhpRestApi\Lib\Config;
++
++class Post
++{
++    private static $DATA = [];
++
++    public static function all()
++    {
++        return self::$DATA;
++    }
++
++    public static function add($post)
++    {
++        // var_dump($post);
++        // var_dump($_POST);
++        $post->id = count(self::$DATA) + 1;
++        self::$DATA[] = $post;
++        self::save();
++        return $post;
++    }
++
++    public static function findById(int $id)
++    {
++        foreach (self::$DATA as $post) {
++            if ($post->id === $id) {
++                return $post;
++            }
++        }
++        return [];
++    }
++
++    public static function load()
++    {
++        $DB_PATH = Config::get('DB_PATH', __DIR__ . '/../../db.json');
++        self::$DATA = json_decode(file_get_contents($DB_PATH));
++    }
++
++    public static function save()
++    {
++        $DB_PATH = Config::get('DB_PATH', __DIR__ . '/../../db.json');
++        file_put_contents($DB_PATH, json_encode(self::$DATA, JSON_PRETTY_PRINT));
++    }
++}
+--- src\Model\User.php
++++ PHP_CodeSniffer
+@@ -1,8 +1,8 @@
+-<?php
+-
+-namespace Bouhouch\PhpRestApi\Model;
+-
+-class User
+-{
+-    public $name='chams';
+-}
++<?php
++
++namespace Bouhouch\PhpRestApi\Model;
++
++class User
++{
++    public $name='chams';
++}
+
