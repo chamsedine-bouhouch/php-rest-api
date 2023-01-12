@@ -1,17 +1,20 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-use Bouhouch\PhpRestApi\Lib\Config;
-use Bouhouch\PhpRestApi\Lib\Logger;
-use Bouhouch\PhpRestApi\Models\User;
+use Bouhouch\PhpRestApi\Controller\Home;
+use Bouhouch\PhpRestApi\Lib\App;
+use Bouhouch\PhpRestApi\Lib\{Router, Response, Request};
 
-$user =new User();
-echo $user->name;
 
-// test Config
-echo Config::get('LOG_PATH');
+Router::get('/', function () {
+    (new Home())->indexAction();
+ });
 
-// test logger
-Logger::enableSystemLogs();
-$logger = Logger::getInstance();
-$logger->info('Hello World');
+Router::get('/post/([0-9]*)', function (Request $req, Response $res) {
+    $res->toJSON([
+        'post' =>  ['id' => $req->params[0]],
+        'status' => 'ok'
+    ]);
+});
+
+App::run();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bouhouch\PhpRestApi\Models;
+namespace Bouhouch\PhpRestApi\Model;
 
 class User
 {
