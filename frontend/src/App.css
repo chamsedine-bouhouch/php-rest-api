@@ -1,0 +1,13 @@
+.App {
+    text-align: center;
+  }
+.App h1{
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+}
+.App li{
+    /* text-transform: uppercase; */
+    display: flex;
+    justify-content: center;
+}
