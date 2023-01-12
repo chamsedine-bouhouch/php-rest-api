@@ -1,0 +1,20 @@
+{
+    "name": "bouhouch/php-rest-api",
+    "description": "create a native php restful api",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Bouhouch\\PhpRestApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "chamsedine-bouhouch",
+            "email": "bouhouchchamseddine@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "1.25.1"
+    }
+}
