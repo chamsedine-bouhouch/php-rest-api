@@ -1,5 +1,5 @@
 <?php
-
+ header("Access-Control-Allow-Origin: http://localhost:3000");
 use Bouhouch\PhpRestApi\Controller\Home;
 use Bouhouch\PhpRestApi\Model\Post;
 use Bouhouch\PhpRestApi\Lib\{Router, Response, Request};
